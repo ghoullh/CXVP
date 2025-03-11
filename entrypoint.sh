@@ -11,7 +11,7 @@ fluxbox -display :0 &
 sleep 3
 
 echo -e "\n### Starting x11vnc..."
-x11vnc -passwd tclk8834KE8neNKWsebCV3INSZiQC5MflEzsQ8f4q1WsF1bhYgRLeYryCE3kAxI7 -N -forever -rfbport 5900 &> /dev/null &
+x11vnc -passwd 123456 -N -forever -rfbport 5900 &> /dev/null &
 
 sleep 10
 

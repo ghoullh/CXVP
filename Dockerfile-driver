@@ -19,9 +19,19 @@ RUN apt-get -y update  \
 
 
 
-WORKDIR /app
+# Download and install chromedriver
+RUN curl -LO https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/${CHROME_VERSION}/linux64/chromedriver-linux64.zip \
+    && unzip chromedriver-linux64.zip \
+    && chmod 777 ./chromedriver-linux64/chromedriver \
+    && mv ./chromedriver-linux64/chromedriver /usr/local/bin/ \
+    && rm chromedriver-linux64.zip \
+    && apt-get remove -y curl unzip \
+    && apt-get autoremove -y \
+    && rm -rf /var/lib/apt/lists/* \
 
-RUN mkdir -p /app/chrome-folder
+
+WORKDIR /app
+RUN mkdir -p /app/selenium
 COPY requirements-driver.txt ./
 RUN pip install -r requirements-driver.txt
 
@@ -32,7 +42,8 @@ COPY entrypoint.sh /entrypoint.sh
 
 RUN chmod 777 /entrypoint.sh
 
-# Set environment variables for Chrome
+# Set environment variables for Chrome and ChromeDriver
+ENV CHROME_DRIVER=/usr/local/bin/chromedriver
 ENV CHROME_VERSION=$CHROME_VERSION
 
 # Set xvfb

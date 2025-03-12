@@ -1,14 +1,18 @@
 import psutil
-from flask import Flask, jsonify
+from sanic import Sanic, json
 
-app = Flask(__name__)
+from apis.browser import browser_bp
+
+app = Sanic("SVXP")
+
+app.blueprint(browser_bp)
 
 
 @app.route('/healthCheck', methods=['GET'])
-def health_check():
+async def health_check(request):
     total = sum(p.memory_info().rss for p in psutil.process_iter()) / (1024 * 1024)
-    return jsonify({"memory":total})
+    return json({"memory": total})
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=9000)
+    app.run(host='0.0.0.0', port=9000, workers=1, auto_reload=False, single_process=True)

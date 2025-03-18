@@ -1,11 +1,14 @@
 import asyncio
+import base64
 import os
 import shutil
 import threading
 from typing import Optional
 
 import nodriver
+from nodriver import cdp
 
+from consts.errors import NotSupportOperation
 from utils.util import get_logger
 
 logger = get_logger(__name__)
@@ -29,13 +32,11 @@ class Browser:
         self._browser_directory = browser_directory
         self._initialized = True
         self._browser: Optional[nodriver.Browser] = None
-        self._chrome_version = os.environ.get("CHROME_VERSION")
-        logger.info(f"Current CHROME_VERSION: {self._chrome_version}")
         asyncio.run(self.start_browser())
 
     async def start_browser(self):
         try:
-            logger.info('Start initializing the browser')
+            logger.info(f'Start initializing the browser, Current CHROME_VERSION: {os.environ.get("CHROME_VERSION")}')
             self._delete_chrome_lock()
             self._browser = await nodriver.start(user_data_dir=self._browser_directory,
                                                  browser_args=["--window-size=1600,900",
@@ -76,10 +77,29 @@ class Browser:
                     except Exception:
                         logger.error(f"Delete file error: {file_path}")
 
-    async def execute(self, execute_type, execute_value):
-        if execute_type == 'open_url':
-            if isinstance(execute_value, str):
-                await self._browser.get(execute_value)
+    def get_tab(self, tab_number):
+        if 0 < tab_number < len(self._browser.tabs):
+            return self._browser.tabs[tab_number]
+        return self._browser.main_tab
+
+    async def execute(self, func, params):
+        if not hasattr(self._browser, func):
+            raise NotSupportOperation(f"Not Support Func: {func}")
+        method = getattr(self._browser, func)
+        if isinstance(params, list):
+            return await method(*params)
+        elif isinstance(params, dict):
+            return await method(**params)
+        else:
+            return await method(params)
+
+    async def page_source(self, tab_number=0) -> str:
+        return await self.get_tab(tab_number).get_content()
+
+    async def screenshot(self, tab_number=0) -> bytes:
+        data = await self.get_tab(tab_number).send(
+            cdp.page.capture_screenshot(format_="jpeg", capture_beyond_viewport=False))
+        return base64.b64decode(data)
 
 
 CHROME = Browser()

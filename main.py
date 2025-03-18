@@ -1,11 +1,24 @@
+import os
+
 import psutil
-from sanic import Sanic, json
+from jinja2 import Environment, FileSystemLoader
+from sanic import Sanic, json, html
 
 from apis.browser import browser_bp
+env = Environment(loader=FileSystemLoader("templates"))
 
-app = Sanic("SVXP")
+app = Sanic("CXVP")
+
+app.static("/static", "./static")
 
 app.blueprint(browser_bp)
+
+
+@app.route("/vnc")
+async def vnc(request):
+    vnc_password = os.environ.get('VNC_PASSWORD')
+    template = env.get_template("vnc_lite.html")
+    return html(template.render(VNC_PASSWORD=vnc_password))
 
 
 @app.route('/healthCheck', methods=['GET'])

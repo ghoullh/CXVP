@@ -1,0 +1,2 @@
+class NotSupportOperation(Exception):
+    pass

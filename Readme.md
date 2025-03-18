@@ -10,7 +10,8 @@ Execute funcs based on the [browser](https://ultrafunkamsterdam.github.io/nodriv
 
 * Open Website
 
-```curl --location 'http://127.0.0.1:9000/browser/execute' \
+```
+curl --location 'http://127.0.0.1:9000/browser/execute' \
 --header 'Content-Type: application/json' \
 --data '{
     "func": "get",

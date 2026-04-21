@@ -1,6 +1,6 @@
 FROM python:3.10
 
-ARG CHROME_VERSION=134.0.6998.88
+ARG CHROME_VERSION=147.0.7727.101
 
 RUN apt-get update && apt-get install -y  fonts-liberation \
     libasound2 libatk-bridge2.0-0 libatk1.0-0 libatspi2.0-0 \
@@ -58,7 +58,7 @@ ENV DISPLAY=:0
 # Expose VNC server
 EXPOSE 5900
 
-# Expose port for falsk server
+# Expose port for flask server
 EXPOSE 9000
 
 ENTRYPOINT /entrypoint.sh
